@@ -11,6 +11,7 @@ public class WelcomeController {
 
     @GetMapping("/hello")
     public String hello() {
+        int x =100;
         return "hello";
     }
 

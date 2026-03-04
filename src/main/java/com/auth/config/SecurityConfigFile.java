@@ -1,7 +1,9 @@
 package com.auth.config;
 
 
+import com.auth.filter.JWTFilter;
 import com.auth.service.CustomerUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,10 +15,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfigFile {
 
+    @Autowired
+    private JWTFilter filter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
@@ -30,7 +35,8 @@ public class SecurityConfigFile {
                                     .requestMatchers("/api/v1/welcome/hi").hasRole("DOCTOR")
                                     .anyRequest().authenticated();
 
-                        }).httpBasic(Customizer.withDefaults());
+                        }).httpBasic(Customizer.withDefaults())
+                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 
@@ -48,7 +54,6 @@ public class SecurityConfigFile {
     public AuthenticationProvider authenticationProvider(
             CustomerUserDetailsService customerUserDetailsService,
             PasswordEncoder passwordEncoder
-
     ){
         DaoAuthenticationProvider authenticationProvider=
                 new DaoAuthenticationProvider(customerUserDetailsService);
